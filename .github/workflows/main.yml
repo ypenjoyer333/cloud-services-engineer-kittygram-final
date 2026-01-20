@@ -130,7 +130,7 @@ jobs:
           pip install pytest==6.2.4 pytest-django==4.4.0 pytest-pythonpath==0.7.3 PyYAML==6.0
 
       - name: Test with pytest
-        run: python -m pytest . -v
+        run: python -m pytest ./tests -v
 
   telegram_notify:
     runs-on: ubuntu-latest
