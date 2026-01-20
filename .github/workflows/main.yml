@@ -100,7 +100,7 @@ jobs:
           envs: ENV_FILE,BACKEND_IMAGE,FRONTEND_IMAGE,GATEWAY_IMAGE
           script: |
             cd /home/deployer01/kittygram
-            echo $ENV_FILE > .env
+            echo -e $ENV_FILE > .env
             docker compose pull
 
             docker compose down
