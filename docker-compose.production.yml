@@ -28,7 +28,6 @@ services:
     image: ${BACKEND_IMAGE:-kittygram_backend}
     container_name: backend
     hostname: backend
-    build: ./backend
     env_file: .env
     restart: always
     depends_on:
@@ -44,14 +43,12 @@ services:
     hostname: frontend
     restart: always
     env_file: .env
-    build: ./frontend
     volumes:
       - static:/static
 
   gateway:
     image: ${GATEWAY_IMAGE:-kittygram_gateway}
     container_name: gateway
-    build: ./nginx
     restart: always
     volumes:
       - media:/var/www/media
