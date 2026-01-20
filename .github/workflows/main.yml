@@ -119,15 +119,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.9"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest==6.2.4 pytest-django==4.4.0 pytest-pythonpath==0.7.3 PyYAML==6.0
+          grep -v "Pillow" ./backend/requirements.txt | pip install -r /dev/stdin
 
       - name: Test with pytest
         run: python -m pytest ./tests -v
