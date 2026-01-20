@@ -1,0 +1,63 @@
+volumes:
+  pg_data:
+  media:
+  static:
+
+services:
+  postgres:
+    image: postgres:13.10
+    container_name: postgres
+    hostname: postgres
+    env_file: .env
+    restart: always
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h localhost -d ${POSTGRES_DB} -U ${POSTGRES_USER}",
+        ]
+      interval: 15s
+      timeout: 20s
+      retries: 3
+      start_period: 15s
+      start_interval: 2s
+
+  backend:
+    image: ${BACKEND_IMAGE:-kittygram_backend}
+    container_name: backend
+    hostname: backend
+    build: ./backend
+    env_file: .env
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - media:/app/media
+      - static:/app/collected_static
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-kittygram_frontend}
+    container_name: frontend
+    hostname: frontend
+    restart: always
+    env_file: .env
+    build: ./frontend
+    volumes:
+      - static:/static
+
+  gateway:
+    image: ${GATEWAY_IMAGE:-kittygram_gateway}
+    container_name: gateway
+    build: ./nginx
+    restart: always
+    volumes:
+      - media:/var/www/media
+      - static:/var/www/static
+    ports:
+      - 33629:80
+    depends_on:
+      - backend
+      - frontend
