@@ -75,6 +75,7 @@ jobs:
       BACKEND_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/kittygram_backend:${{ github.sha }}
       FRONTEND_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/kittygram_frontend:${{ github.sha }}
       GATEWAY_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/kittygram_gateway:${{ github.sha }}
+      ENV_FILE: ${{ secrets.ENV_FILE }}
     needs:
       - build_and_push_to_docker_hub
     steps:
@@ -96,7 +97,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: ENV_FILE
+          envs: ENV_FILE,BACKEND_IMAGE,FRONTEND_IMAGE,GATEWAY_IMAGE
           script: |
             cd /home/deployer01/kittygram
             echo $ENV_FILE > .env
