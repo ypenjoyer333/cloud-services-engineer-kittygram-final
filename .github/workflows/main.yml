@@ -103,17 +103,14 @@ jobs:
         id: terraform-output
         working-directory: infra
         run: |
-          INSTANCE_IP="$(terraform output -raw
-          instance_external_ip)"
+          INSTANCE_IP="$(terraform output -raw instance_external_ip)"
 
           if [ -z "$INSTANCE_IP" ]; then
-            echo "Terraform output
-            instance_external_ip is empty"
+            echo "Terraform output instance_external_ip is empty"
             exit 1
           fi
 
-          echo "instance_ip=$INSTANCE_IP" >>
-          "$GITHUB_OUTPUT"
+          echo "instance_ip=$INSTANCE_IP" >> "$GITHUB_OUTPUT"
 
       - name: Copy docker-compose.production.yml via ssh
         uses: appleboy/scp-action@master
