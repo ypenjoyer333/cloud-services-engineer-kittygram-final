@@ -40,7 +40,7 @@ variable "vm_name" {
 variable "image_family" {
   description = "VM OS Family"
   type = string
-  default = "ubuntu-2004-lts"
+  default = "ubuntu-2204-lts"
 }
 
 variable "platform_id" {
