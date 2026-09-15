@@ -54,7 +54,7 @@ services:
       - media:/var/www/media
       - static:/var/www/static
     ports:
-      - 33629:80
+      - 80:80
     depends_on:
       - backend
       - frontend
