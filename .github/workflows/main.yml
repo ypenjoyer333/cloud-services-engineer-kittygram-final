@@ -82,24 +82,57 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.3
+          terraform_wrapper: false
+
+      - name: Initialize Terraform
+        working-directory: infra
+        run: terraform init
+          -backend-config="bucket=$S3_BUCKET"
+          -backend-config="access_key=$ACCESS_KEY"
+          -backend-config="secret_key=$SECRET_KEY"
+        env:
+          S3_BUCKET: ${{ secrets.TF_STATE_BUCKET }}
+          ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
+      - name: Get Terraform instance IP
+        id: terraform-output
+        working-directory: infra
+        run: |
+          INSTANCE_IP="$(terraform output -raw
+          instance_external_ip)"
+
+          if [ -z "$INSTANCE_IP" ]; then
+            echo "Terraform output
+            instance_external_ip is empty"
+            exit 1
+          fi
+
+          echo "instance_ip=$INSTANCE_IP" >>
+          "$GITHUB_OUTPUT"
+
       - name: Copy docker-compose.production.yml via ssh
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
+          host: ${{ steps.terraform-output.outputs.instance_ip }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           source: "docker-compose.production.yml"
-          target: "/home/deployer01/kittygram"
+          target: "/home/${{ secrets.SSH_USER }}/kittygram"
 
       - name: Executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
+          host: ${{ steps.terraform-output.outputs.instance_ip }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           envs: ENV_FILE,BACKEND_IMAGE,FRONTEND_IMAGE,GATEWAY_IMAGE
           script: |
-            cd /home/deployer01/kittygram
+            cd /home/${{ secrets.SSH_USER }}/kittygram
             echo -e $ENV_FILE > .env
             docker compose -f docker-compose.production.yml pull
 
